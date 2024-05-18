@@ -1,20 +1,33 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, SafeAreaView, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { Header, Divider } from '@rneui/themed';
+import Footer from './components/footer';
+import { NavigationContainer } from '@react-navigation/native'; 
 
-export default function App() {
+export default function App() 
+{
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Footer></Footer>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const styles = StyleSheet.create(
+{
+  container: 
+  {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#DAA66F',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  header:
+  {
+    flex: 1,
+    backgroundColor: '#DAA66F',
+  },
+  middle:
+  {
+    flex: 1,
   },
 });
