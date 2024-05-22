@@ -2,20 +2,16 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; 
 import HomeScreen from '../screens/HomeScreen';
-import ProfileScreen from '../screens/ProfileScreen';
 import ExploreScreen from '../screens/ExploreScreen';
+import ProfileStack from './profileStack';
+
+const Tab = createBottomTabNavigator();
 
 const Footer = () => 
 {
-    const Tab = createBottomTabNavigator();
-
     return (
         <Tab.Navigator 
             initialRouteName={HomeScreen}
-            tabBarOptions=
-            {{
-                showLabel: false,
-            }}
         >
             <Tab.Screen 
                 name='Home' 
@@ -45,7 +41,7 @@ const Footer = () =>
             ></Tab.Screen>
             <Tab.Screen 
                 name='Profile' 
-                component={ProfileScreen}
+                component={ProfileStack}
                 options={{ tabBarIcon: ({focused}) =>
                     <View>
                         <Image 
