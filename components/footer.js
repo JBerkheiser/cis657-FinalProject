@@ -60,18 +60,18 @@ const styles = StyleSheet.create(
 {
     HomeIcon:
     {
-        width: 30,
-        height: 30,
+        width: 25,
+        height: 25,
     },
     ExploreIcon:
     {
-        width: 45,
-        height: 45,
+        width: 40,
+        height: 40,
     },
     ProfileIcon:
     {
-        width: 29,
-        height: 29,
+        width: 24,
+        height: 24,
     },
 });
 
