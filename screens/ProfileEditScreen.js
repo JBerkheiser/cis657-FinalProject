@@ -5,12 +5,9 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 
 function ProfileEditScreen({route, navigation})
 {
-    let initialName = route.params.name;
-    const initialBio = route.params.bio;
-    const initialURL = route.params.imageURL;
-    const [name, setName] = useState(initialName);
-    const [imageURL, setImageURL] = useState(initialURL);
-    const [bio, setBio] = useState(initialBio);
+    const [name, setName] = useState('');
+    const [imageURL, setImageURL] = useState('');
+    const [bio, setBio] = useState('');
     const [birthday, setBirthday] = useState('birthday');
 
 
@@ -37,16 +34,12 @@ function ProfileEditScreen({route, navigation})
                 <TouchableOpacity 
                     onPress={() => 
                     {
+                        initialName = name;
                         navigation.navigate('ProfileScreen', {
                             name,
                             imageURL,
                             bio,
                         });
-
-                        initialName = name;
-                        console.log("init: " + initialName);
-                        console.log("name: " + name);
-                        console.log("route: " + route.params.name);
                     }}
                 >
                     <Text> Save </Text>
@@ -54,6 +47,22 @@ function ProfileEditScreen({route, navigation})
             ),
         });
     });
+
+    useEffect(() =>
+    {
+        if(route.params?.name)
+        {
+            setName(route.params.name);
+        }
+        if(route.params?.bio)
+        {
+            setBio(route.params.bio);
+        }
+        if(route.params?.imageURL)
+        {
+            setImageURL(route.params.imageURL);
+        }
+    }, [route.params?.name, route.params?.bio, route.params?.imageURL]);
 
     hideBottomBar();
 

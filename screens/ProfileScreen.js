@@ -32,12 +32,14 @@ const ProfileScreen = ({route, navigation}) =>
                 </TouchableOpacity>
             ),
         });
+    });
 
+
+    useEffect(() =>
+    {
         if(route.params?.name)
         {
             setName(route.params.name);
-            console.log("Profile Name: " + name);
-            console.log("Profile route: " + route.params.name);
         }
         if(route.params?.imageURL)
         {

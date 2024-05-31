@@ -6,11 +6,9 @@ import { NavigationContainer } from '@react-navigation/native';
 export default function App() 
 {
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <NavigationContainer>
       <Footer></Footer>
     </NavigationContainer>
-    </TouchableWithoutFeedback>
   );
 }
 
