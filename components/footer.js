@@ -14,7 +14,7 @@ const Footer = () =>
             initialRouteName={HomeScreen}
         >
             <Tab.Screen 
-                name='Home' 
+                name='My Collection' 
                 component={HomeScreen}
                 options={{ tabBarIcon: ({focused}) =>
                     <View>
