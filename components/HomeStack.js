@@ -8,7 +8,7 @@ const ProfileStack = (navigation) =>
     return(
         <Stack.Navigator initialRouteName="HomeScreen">
             <Stack.Screen name="HomeScreen" component={HomeScreen}/>
-            <Stack.Screen name="AddAlbumScreen" component={AddAlbumScreen} title={'My Collection'}/>
+            <Stack.Screen name="AddAlbumScreen" component={AddAlbumScreen}/>
         </Stack.Navigator>
     )
 }
