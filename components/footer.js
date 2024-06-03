@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'; 
-import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
 import ProfileStack from './profileStack';
+import HomeStack from './HomeStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -11,11 +11,11 @@ const Footer = () =>
 {
     return (
         <Tab.Navigator 
-            initialRouteName={HomeScreen}
+            initialRouteName={HomeStack}
         >
             <Tab.Screen 
                 name='My Collection' 
-                component={HomeScreen}
+                component={HomeStack}
                 options={{ tabBarIcon: ({focused}) =>
                     <View>
                         <Image 

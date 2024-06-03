@@ -1,7 +1,10 @@
 import { getAdapter } from 'axios';
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, Modal, TouchableOpacity} from 'react-native';
 import { getAlbum } from '../api/DiscogsServer';
+import { Button } from '@rneui/themed';
+import { Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
 
 const HomeScreen = ({navigation}) =>
 {
@@ -25,7 +28,9 @@ const HomeScreen = ({navigation}) =>
         Genre: 'Hip-Hop',
     },
     ]);
+
     const [albumInfo, setAlbumInfo] = useState({});
+    const [addModalVisible, setAddModalVisible] = useState(false);
 
     const separator = () =>
     {
@@ -44,7 +49,14 @@ const HomeScreen = ({navigation}) =>
     {
         navigation.setOptions({
             headerRight: () =>(
-                <Text>Add</Text>
+                <TouchableOpacity
+                    onPress={() => 
+                    {
+                        setAddModalVisible(true)
+                    }}
+                > 
+                    <Text>Add</Text>
+                </TouchableOpacity>
             ),
         });
     });
@@ -52,31 +64,82 @@ const HomeScreen = ({navigation}) =>
     const renderAlbum = ({item}) =>
     {
         return(
-            <View style={styles.albumCard}>
-                <View style={styles.imageContainer}>
-                    <Image source={{uri: item.ImageURL}}/>
-                </View>
-                <View style={styles.textContainer}>
-                    <Text>{item.Title} - {item.Artist}</Text>
-                    <Text>{item.ReleaseDate}</Text>
-                    <Text>Genre: {item.Genre}</Text>
-                    <View style={styles.albumCardBottom}>
-                        <Text>{item.Rating}</Text>
-                        <View style={styles.condition}>
-                            <Text>Condition: {item.Condition}</Text>
-                        </View>
-                    </View>                    
+            <View>
+                <View style={styles.albumCard}>
+                    <View style={styles.imageContainer}>
+                        <Image source={{uri: item.ImageURL}}/>
+                    </View>
+                    <View style={styles.textContainer}>
+                        <Text>{item.Title} - {item.Artist}</Text>
+                        <Text>{item.ReleaseDate}</Text>
+                        <Text>Genre: {item.Genre}</Text>
+                        <View style={styles.albumCardBottom}>
+                            <Text>{item.Rating}</Text>
+                            <View style={styles.condition}>
+                                <Text>Condition: {item.Condition}</Text>
+                            </View>
+                        </View>                    
+                    </View>
                 </View>
             </View>
         )
     }
 
     return(
-        <FlatList
+        <View>
+            <FlatList
             data={albums}
             renderItem={renderAlbum}
             ItemSeparatorComponent={separator}
-        />
+            />
+            <Modal
+                animationType='slide'
+                transparent={true}
+                visible={addModalVisible}
+                onRequestClose={() =>
+                {
+                    setAddModalVisible(false);
+                }}
+                onDismiss={() => 
+                {
+                    console.log("CLOSING MODAL");
+                }}
+            >
+                <View style={styles.modalView}>
+                    <View style={styles.addHeader}>  
+                        <TouchableOpacity
+                            onPress={() =>
+                            {
+                                setAddModalVisible(false);
+                            }}
+                        >
+                            <AntDesign name="leftcircle" size={24} color="black" />
+                        </TouchableOpacity>
+                        <Text style={{fontSize: 20}}>Add Album</Text>
+                        <TouchableOpacity onPress={() => 
+                        {
+                            setAddModalVisible(false);
+                            navigation.navigate('CameraScreen');
+                        }}
+                        >
+                            <Entypo name="camera" size={24} color="black" />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.addMiddle}>
+
+                    </View>
+                    <View style={styles.addBottom}>
+                        <Button 
+                            style={{margin: 4}}
+                            onPress={() =>
+                            {
+                                setAddModalVisible(false);
+                            }}
+                        >Save Album</Button>
+                    </View>
+                </View>
+            </Modal>
+        </View>
     );
 };
 
@@ -119,6 +182,41 @@ const styles = StyleSheet.create(
         flexDirection: 'row',
         marginTop: 5,
         justifyContent: 'space-evenly',
+    },
+    modalView: 
+    {
+        top: '25%',
+        height: '75%',
+        backgroundColor: 'white',
+        borderWidth: 4,
+        borderBottomWidth: 0,
+        borderTopLeftRadius: 50,
+        borderTopRightRadius: 50,
+    },
+    addHeader:
+    {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        marginTop: 7,
+    },
+    addMiddle:
+    {
+        flex: 5,
+    },
+    addBottom:
+    {
+        flex: 1,
+    },
+    cameraContainer:
+    {
+        flex: 1,
+        width: '100%',
+    },
+    camera: 
+    {
+        width: '100%',
+        height: '100%',
     },
 });
 
