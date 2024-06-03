@@ -1,16 +1,36 @@
 import { getAdapter } from 'axios';
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, Modal, TouchableOpacity} from 'react-native';
-import { getAlbum } from '../api/DiscogsServer';
-import { Button } from '@rneui/themed';
+import 
+{ 
+    View, 
+    Text, 
+    StyleSheet, 
+    FlatList, 
+    Image, 
+    Modal, 
+    TouchableOpacity, 
+    KeyboardAvoidingView, 
+    TouchableWithoutFeedback,
+    Keyboard,
+    Platform,
+} from 'react-native';
+import { getAlbum, getAlbumManual } from '../api/DiscogsServer';
+import { Button, Input } from '@rneui/themed';
 import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const HomeScreen = ({route, navigation}) =>
 {
     const [albums, setAlbums] = useState([]);
     const [scannedItem, setScannedItem] = useState(null);
     const [addModalVisible, setAddModalVisible] = useState(false);
+    const [manualAdd, setManualAdd] = useState(
+    {
+        title: '',
+        artist: '',
+    });
 
     const separator = () =>
     {
@@ -27,7 +47,7 @@ const HomeScreen = ({route, navigation}) =>
                         setAddModalVisible(true)
                     }}
                 > 
-                    <Text>Add</Text>
+                    <FontAwesome6 name="add" size={24} color="black" style={{marginRight: 25,}}/>
                 </TouchableOpacity>
             ),
         });
@@ -56,6 +76,14 @@ const HomeScreen = ({route, navigation}) =>
             setAlbums(prevAlbums => [...prevAlbums, scannedItem]);
         }
     }, [scannedItem]);
+
+    
+    const updateManualAddObject = (vals) => {
+        setManualAdd({
+        ...manualAdd,
+        ...vals,
+        });
+    };
 
     const renderAlbum = ({index, item}) =>
     {
@@ -101,6 +129,7 @@ const HomeScreen = ({route, navigation}) =>
                     setAddModalVisible(false);
                 }}
             >
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.modalView}>
                     <View style={styles.addHeader}>  
                         <TouchableOpacity
@@ -122,7 +151,22 @@ const HomeScreen = ({route, navigation}) =>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.addMiddle}>
-
+                    <KeyboardAwareScrollView>
+                    <View>
+                        <Input
+                            placeholder='Enter the albums title'
+                            value={manualAdd.title}
+                            autoCorrect={false}
+                            onChangeText={(val) => updateManualAddObject({ title: val })}
+                        />
+                        <Input
+                            placeholder='Enter the artist'
+                            value={manualAdd.artist}
+                            autoCorrect={false}
+                            onChangeText={(val) => updateManualAddObject({ artist: val })}
+                        />
+                    </View>
+                    </KeyboardAwareScrollView>
                     </View>
                     <View style={styles.addBottom}>
                         <Button 
@@ -130,11 +174,20 @@ const HomeScreen = ({route, navigation}) =>
                             onPress={() =>
                             {
                                 setAddModalVisible(false);
+                                getAlbumManual(manualAdd.artist, manualAdd.title).then(album =>
+                                {
+                                    setScannedItem(album.results[0]);
+                                }).catch(error =>
+                                {
+                                    console.error('Error fetching album: ', error)
+                                });
+                                updateManualAddObject({artist: '', title: ''});
                             }}
                         >Save Album</Button>
                     </View>
                 </View>
-            </Modal>
+                </TouchableWithoutFeedback>
+            </Modal> 
         </View>
     );
 };
@@ -181,13 +234,19 @@ const styles = StyleSheet.create(
     },
     modalView: 
     {
-        top: '25%',
-        height: '75%',
+        top: '30%',
+        height: '70%',
         backgroundColor: 'white',
         borderWidth: 4,
         borderBottomWidth: 0,
         borderTopLeftRadius: 50,
         borderTopRightRadius: 50,
+        flexDirection: 'column',
+    },
+    dismiss:
+    {
+        top: '100%',
+        height: '100%',
     },
     addHeader:
     {
