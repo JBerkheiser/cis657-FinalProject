@@ -8,7 +8,7 @@ const HomeStack = (navigation) =>
     return(
         <Stack.Navigator initialRouteName="HomeScreen">
             <Stack.Screen name="HomeScreen" component={HomeScreen}/>
-            <Stack.Screen name="CameraScreen" component={CameraScreen}/>
+            <Stack.Screen name="CameraScreen" component={CameraScreen} options={{headerShown: false}}/>
         </Stack.Navigator>
     )
 }

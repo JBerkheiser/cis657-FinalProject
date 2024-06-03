@@ -12,6 +12,7 @@ const Footer = () =>
     return (
         <Tab.Navigator 
             initialRouteName={HomeStack}
+            screenOptions={{headerShown: false}}
         >
             <Tab.Screen 
                 name='My Collection' 

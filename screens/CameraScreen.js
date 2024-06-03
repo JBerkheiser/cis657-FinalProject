@@ -1,21 +1,26 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useState, useEffect } from 'react';
 import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Fontisto } from '@expo/vector-icons';
 
 const CameraScreen = ({navigation}) =>
 {
 
-    useEffect(() => {
+    useEffect(() => 
+    {
         // This effect will run when the component mounts and unmounts
         hideBottomBar();
         return () => showBottomBar();
     }, []); // Empty dependency array ensures this effect runs only once
 
-    function hideBottomBar() {
+    function hideBottomBar() 
+    {
         navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' }, tabBarVisible: false });
     }
 
-    function showBottomBar() {
+    function showBottomBar() 
+    {
         navigation.getParent()?.setOptions({ tabBarStyle: undefined, tabBarVisible: undefined });
     }
 
@@ -47,9 +52,19 @@ const CameraScreen = ({navigation}) =>
     return(
         <View style={styles.container}>
             <CameraView style={styles.camera} facing={facing}>
+                <View style={{flex: 8}}></View>
                 <View style={styles.buttonContainer}>
+                    <TouchableOpacity 
+                        style={styles.button} 
+                        onPress={() => 
+                        {
+                            navigation.navigate('HomeScreen');
+                        }}
+                    >
+                        <Fontisto name="arrow-return-left" size={24} color="black" />
+                    </TouchableOpacity>
                     <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-                        <Text style={styles.text}>Flip Camera</Text>
+                        <MaterialCommunityIcons name="camera-flip" size={24} color="black" />
                     </TouchableOpacity>
                 </View>
             </CameraView>
@@ -68,12 +83,11 @@ const styles = StyleSheet.create({
     buttonContainer: {
       flex: 1,
       flexDirection: 'row',
-      backgroundColor: 'transparent',
-      margin: 64,
+      backgroundColor: 'grey',
     },
     button: {
       flex: 1,
-      alignSelf: 'flex-end',
+      alignSelf: 'center',
       alignItems: 'center',
     },
     text: {
