@@ -6,6 +6,7 @@ import { Fontisto } from '@expo/vector-icons';
 
 const CameraScreen = ({navigation}) =>
 {
+    const [scanned, setScanned] = useState(false);
 
     useEffect(() => 
     {
@@ -44,6 +45,12 @@ const CameraScreen = ({navigation}) =>
         );
     }
 
+    const handleBarCodeScanned = ({type, data}) =>
+    {
+        setScanned(true);
+        navigation.navigate('HomeScreen', {data});
+    }
+
     function toggleCameraFacing() 
     {
         setFacing(current => (current === 'back' ? 'front' : 'back'));
@@ -51,7 +58,15 @@ const CameraScreen = ({navigation}) =>
 
     return(
         <View style={styles.container}>
-            <CameraView style={styles.camera} facing={facing}>
+            <CameraView 
+                style={styles.camera} 
+                facing={facing}
+                barcodeScannerSettings=
+                {{
+                    barcodeTypes: ['upc_a'],
+                }}
+                onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+            >
                 <View style={{flex: 8}}></View>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity 

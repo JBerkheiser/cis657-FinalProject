@@ -6,44 +6,16 @@ import { Button } from '@rneui/themed';
 import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 
-const HomeScreen = ({navigation}) =>
+const HomeScreen = ({route, navigation}) =>
 {
-    const [albums, setAlbums] = useState([
-    {
-        Title: 'Graduation',
-        Artist: 'Kanye West',
-        ReleaseDate: 'September 11, 2007',
-        ImageURL: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FGraduation_%2528album%2529&psig=AOvVaw3t2u1tUgcOa8KElcHNBFG4&ust=1717205299911000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCMCNi7PetoYDFQAAAAAdAAAAABAE',
-        Rating: '9/10',
-        Condition: 'Mint',
-        Genre: 'Hip-Hop',
-    },
-    {
-        Title: 'To Pimp a Butterfly',
-        Artist: 'Kendrick Lamar',
-        ReleaseDate: 'November 5, 2015',
-        ImageURL: 'https://www.google.com/imgres?q=to%20pimp%20a%20butterfly&imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fen%2Ff%2Ff6%2FKendrick_Lamar_-_To_Pimp_a_Butterfly.png&imgrefurl=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FTo_Pimp_a_Butterfly&docid=iZDwwTxlP9h77M&tbnid=rIK9nfRys1dXOM&vet=12ahUKEwiKo_f937aGAxXNmIkEHdg7AK8QM3oECBsQAA..i&w=300&h=300&hcb=2&ved=2ahUKEwiKo_f937aGAxXNmIkEHdg7AK8QM3oECBsQAA',
-        Rating: '10/10',
-        Condition: 'Near Mint',
-        Genre: 'Hip-Hop',
-    },
-    ]);
-
-    const [albumInfo, setAlbumInfo] = useState({});
+    const [albums, setAlbums] = useState([]);
+    const [scannedItem, setScannedItem] = useState(null);
     const [addModalVisible, setAddModalVisible] = useState(false);
 
     const separator = () =>
     {
         return(<View style={styles.separator}/>);
     };
-
-    useEffect(() =>
-    {
-        getAlbum((data) =>
-        {
-            console.log('received: ', data);
-        })
-    }, []);
 
     useEffect(() =>
     {
@@ -61,22 +33,48 @@ const HomeScreen = ({navigation}) =>
         });
     });
 
-    const renderAlbum = ({item}) =>
+    useEffect(() =>
+    {
+        if(route.params?.data)
+        {
+            console.log(`scanned code: ${route.params.data}`);
+            getAlbum(route.params.data).then(album =>
+            {
+                setScannedItem(album.results[0]);
+            }).catch(error =>
+            {
+                console.error('Error fetching album: ', error)
+            });
+        }
+    }, [route.params?.data]);
+
+    useEffect(() =>
+    {
+        if(scannedItem)
+        {
+            console.log('Album is now: ',scannedItem);
+            setAlbums(prevAlbums => [...prevAlbums, scannedItem]);
+        }
+    }, [scannedItem]);
+
+    const renderAlbum = ({index, item}) =>
     {
         return(
             <View>
                 <View style={styles.albumCard}>
                     <View style={styles.imageContainer}>
-                        <Image source={{uri: item.ImageURL}}/>
+                        <Image 
+                            source={{uri: item.thumb}}
+                            style={{width: 100, height: 100}}
+                        />
                     </View>
                     <View style={styles.textContainer}>
-                        <Text>{item.Title} - {item.Artist}</Text>
-                        <Text>{item.ReleaseDate}</Text>
-                        <Text>Genre: {item.Genre}</Text>
+                        <Text>{item.title}</Text>
+                        <Text>Genre: {item.genre}</Text>
                         <View style={styles.albumCardBottom}>
-                            <Text>{item.Rating}</Text>
+                            <Text>Rating</Text>
                             <View style={styles.condition}>
-                                <Text>Condition: {item.Condition}</Text>
+                                <Text>Condition:</Text>
                             </View>
                         </View>                    
                     </View>
@@ -90,6 +88,8 @@ const HomeScreen = ({navigation}) =>
             <FlatList
             data={albums}
             renderItem={renderAlbum}
+            extraData={albums}
+            keyExtractor={(item) => item.id.toString()}
             ItemSeparatorComponent={separator}
             />
             <Modal
@@ -99,10 +99,6 @@ const HomeScreen = ({navigation}) =>
                 onRequestClose={() =>
                 {
                     setAddModalVisible(false);
-                }}
-                onDismiss={() => 
-                {
-                    console.log("CLOSING MODAL");
                 }}
             >
                 <View style={styles.modalView}>
@@ -165,7 +161,7 @@ const styles = StyleSheet.create(
     },  
     imageContainer:
     {
-        flex: 1,
+        flex: 2,
     },  
     textContainer:
     {

@@ -21,9 +21,10 @@ DiscogsServer.interceptors.request.use(
 export const getAlbum = async(callback) =>
 {
     const response = await DiscogsServer.get(
-        `https://api.discogs.com/database/search?token=${DISCOGS_KEY}&release_title=MyBeautifulDarkTwistedFantasy&artist=Kanye`
+        `https://api.discogs.com/database/search?token=${DISCOGS_KEY}&barcode=${callback}&per_page=1&page=1`
     );
-    callback(response.data);
+    
+    return response.data;
 };
 
 export default DiscogsServer;
