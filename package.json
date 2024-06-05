@@ -22,6 +22,7 @@
     "expo-barcode-scanner": "^13.0.1",
     "expo-camera": "^15.0.10",
     "expo-status-bar": "~1.12.1",
+    "firebase": "9.6.11",
     "react": "18.2.0",
     "react-native": "0.74.1",
     "react-native-gesture-handler": "~2.16.1",

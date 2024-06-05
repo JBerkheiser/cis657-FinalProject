@@ -20,6 +20,14 @@ import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import 
+{
+    initAlbumDB,
+    setupAlbumListener,
+    storeAlbumItem,
+    updateAlbum,
+    deleteAlbum,
+} from '../helpers/fb-albums';
 
 const HomeScreen = ({route, navigation}) =>
 {
@@ -36,6 +44,22 @@ const HomeScreen = ({route, navigation}) =>
     {
         return(<View style={styles.separator}/>);
     };
+
+    useEffect(() =>
+    {
+        try
+        {
+        initAlbumDB();
+        } catch(err)
+        {
+        console.log(err);
+        }
+        setupAlbumListener((items) =>
+        {
+            console.log('setting state with: ', items);
+            setAlbums(items);
+        });
+    }, []);
 
     useEffect(() =>
     {
@@ -74,6 +98,7 @@ const HomeScreen = ({route, navigation}) =>
         {
             console.log('Album is now: ',scannedItem);
             setAlbums(prevAlbums => [...prevAlbums, scannedItem]);
+            storeAlbumItem(scannedItem);
         }
     }, [scannedItem]);
 
