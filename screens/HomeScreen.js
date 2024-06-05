@@ -84,7 +84,7 @@ const HomeScreen = ({route, navigation}) =>
             console.log(`scanned code: ${route.params.data}`);
             getAlbum(route.params.data).then(album =>
             {
-                setScannedItem(album.results[0]);
+                setScannedItem(album);
             }).catch(error =>
             {
                 console.error('Error fetching album: ', error)
@@ -96,9 +96,9 @@ const HomeScreen = ({route, navigation}) =>
     {
         if(scannedItem)
         {
-            console.log('Album is now: ',scannedItem);
             setAlbums(prevAlbums => [...prevAlbums, scannedItem]);
             storeAlbumItem(scannedItem);
+            setScannedItem(null);
         }
     }, [scannedItem]);
 
@@ -117,12 +117,13 @@ const HomeScreen = ({route, navigation}) =>
                 <View style={styles.albumCard}>
                     <View style={styles.imageContainer}>
                         <Image 
-                            source={{uri: item.thumb}}
+                            source={{uri: item.thumbURL}}
                             style={{width: 100, height: 100}}
                         />
                     </View>
                     <View style={styles.textContainer}>
                         <Text>{item.title}</Text>
+                        <Text>{item.artist.name}</Text>
                         <Text>Genre: {item.genre}</Text>
                         <View style={styles.albumCardBottom}>
                             <Text>Rating</Text>

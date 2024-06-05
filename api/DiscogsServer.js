@@ -23,8 +23,34 @@ export const getAlbum = async(callback) =>
     const response = await DiscogsServer.get(
         `https://api.discogs.com/database/search?token=${DISCOGS_KEY}&barcode=${callback}&per_page=1&page=1`
     );
-    
-    return response.data;
+
+    const masterID = response.data.results[0].master_id;
+
+    if(!masterID)
+    {
+        console.log("Could not find master ID");
+        return response.data;
+    }
+
+    const masterResponse = await DiscogsServer.get(
+        `https://api.discogs.com/masters/${masterID}?token=${DISCOGS_KEY}`
+    );
+
+    const retVal = 
+    {
+        artist: masterResponse.data.artists[0],
+        title: masterResponse.data.title,
+        genre: masterResponse.data.genres,
+        styles: masterResponse.data.styles,
+        year: masterResponse.data.year,
+        trackList: masterResponse.data.tracklist,
+        imageURL: masterResponse.data.images[0].uri,
+        thumbURL: masterResponse.data.images[0].uri150,
+    }
+
+    console.log("ARTIST:" + retVal.artist);
+
+    return retVal;
 };
 
 export const getAlbumManual = async(artist, title) =>
