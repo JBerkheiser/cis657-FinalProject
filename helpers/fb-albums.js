@@ -43,7 +43,6 @@ export function setupAlbumListener(updateFunc)
             const newArr = [];
             Object.keys(fbObject).map((key, index) =>
             {
-                console.log(key, '||', index, '||', fbObject[key]);
                 newArr.push({...fbObject[key], id:key});
             });
             updateFunc(newArr);

@@ -1,7 +1,7 @@
 import { StyleSheet, SafeAreaView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Header, Divider } from '@rneui/themed';
 import Footer from './components/footer';
-import { NavigationContainer } from '@react-navigation/native'; 
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native'; 
 
 export default function App() 
 {

@@ -46,21 +46,46 @@ export const getAlbum = async(callback) =>
         trackList: masterResponse.data.tracklist,
         imageURL: masterResponse.data.images[0].uri,
         thumbURL: masterResponse.data.images[0].uri150,
+        rating: null,
+        condition: '',
     }
-
-    console.log("ARTIST:" + retVal.artist);
 
     return retVal;
 };
 
 export const getAlbumManual = async(artist, title) =>
+{
+    console.log(artist + '||' + title);
+    const response = await DiscogsServer.get(
+        `https://api.discogs.com/database/search?token=${DISCOGS_KEY}&release_title=${title}&artist=${artist}&per_page=1&page=1`
+    );
+    const masterID = response.data.results[0].master_id;
+
+    if(!masterID)
     {
-        console.log(artist + '||' + title);
-        const response = await DiscogsServer.get(
-            `https://api.discogs.com/database/search?token=${DISCOGS_KEY}&release_title=${title}&artist=${artist}&per_page=1&page=1`
-        );
-        console.log(response.data);
+        console.log("Could not find master ID");
         return response.data;
-    };
+    }
+
+    const masterResponse = await DiscogsServer.get(
+        `https://api.discogs.com/masters/${masterID}?token=${DISCOGS_KEY}`
+    );
+
+    const retVal = 
+    {
+        artist: masterResponse.data.artists[0],
+        title: masterResponse.data.title,
+        genre: masterResponse.data.genres,
+        styles: masterResponse.data.styles,
+        year: masterResponse.data.year,
+        trackList: masterResponse.data.tracklist,
+        imageURL: masterResponse.data.images[0].uri,
+        thumbURL: masterResponse.data.images[0].uri150,
+        rating: null,
+        condition: '',
+    }
+
+    return retVal;
+};
 
 export default DiscogsServer;

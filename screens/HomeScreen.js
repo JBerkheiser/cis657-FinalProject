@@ -13,12 +13,14 @@ import
     TouchableWithoutFeedback,
     Keyboard,
     Platform,
+    TouchableHighlight,
 } from 'react-native';
 import { getAlbum, getAlbumManual } from '../api/DiscogsServer';
 import { Button, Input } from '@rneui/themed';
 import { Entypo } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { Rating } from 'react-native-elements';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import 
 {
@@ -31,6 +33,7 @@ import
 
 const HomeScreen = ({route, navigation}) =>
 {
+    const [albumToUpdate, setAlbumToUpdate] = useState(null);
     const [albums, setAlbums] = useState([]);
     const [scannedItem, setScannedItem] = useState(null);
     const [addModalVisible, setAddModalVisible] = useState(false);
@@ -92,6 +95,22 @@ const HomeScreen = ({route, navigation}) =>
         }
     }, [route.params?.data]);
 
+    useEffect(() => {
+        if (albumToUpdate && (route.params?.condition || route.params?.rating)) {
+            console.log('Updating album: ', route.params.condition, route.params.rating);
+            const updatedAlbum = {
+                ...albumToUpdate,
+                condition: route.params.condition,
+                rating: route.params.rating,
+            };
+
+            updateAlbum(updatedAlbum); // Update the album in the database
+
+            setAlbumToUpdate(null);
+        }
+    }, [route.params?.condition, route.params?.rating]);
+
+
     useEffect(() =>
     {
         if(scannedItem)
@@ -110,29 +129,52 @@ const HomeScreen = ({route, navigation}) =>
         });
     };
 
-    const renderAlbum = ({index, item}) =>
+    const renderAlbum = ({item}) =>
     {
         return(
             <View>
-                <View style={styles.albumCard}>
-                    <View style={styles.imageContainer}>
-                        <Image 
-                            source={{uri: item.thumbURL}}
-                            style={{width: 100, height: 100}}
-                        />
+                <TouchableHighlight
+                    onPress={() =>
+                    {
+                        setAlbumToUpdate(item)
+                        navigation.navigate('AlbumInfoScreen',
+                        {
+                            title: item.title,
+                            artist: item.artist.name,
+                            genre: item.genre,
+                            styles: item.styles,
+                            tracklist: item.trackList,
+                            imageURL: item.imageURL,
+                            year: item.year,
+                            condition: item.condition,
+                            rating: item.rating,
+                        });
+                    }}
+                >
+                    <View style={styles.albumCard}>
+                        <View style={styles.imageContainer}>
+                            <Image 
+                                source={{uri: item.thumbURL}}
+                                style={{width: 100, height: 100,}}
+                            />
+                        </View>
+                        <View style={styles.textContainer}>
+                            <Text>{item.title}</Text>
+                            <Text>{item.artist.name}</Text>
+                            <Text>Genre: {item.genre && item.genre.length > 0 ? item.genre.slice(0, item.genre.length).join(', ') : 'No genre available'}</Text>
+                            <View style={styles.albumCardBottom}>
+                                <Rating
+                                    type='star'
+                                    fractions={2}
+                                    startingValue={item.rating? item.rating / 2 : 0}
+                                    imageSize={17}
+                                    readonly
+                                />
+                                <Text style={{marginLeft: 5,}}>Condition: {item.condition}</Text>
+                            </View>                    
+                        </View>
                     </View>
-                    <View style={styles.textContainer}>
-                        <Text>{item.title}</Text>
-                        <Text>{item.artist.name}</Text>
-                        <Text>Genre: {item.genre}</Text>
-                        <View style={styles.albumCardBottom}>
-                            <Text>Rating</Text>
-                            <View style={styles.condition}>
-                                <Text>Condition:</Text>
-                            </View>
-                        </View>                    
-                    </View>
-                </View>
+                </TouchableHighlight>
             </View>
         )
     }
@@ -143,7 +185,7 @@ const HomeScreen = ({route, navigation}) =>
             data={albums}
             renderItem={renderAlbum}
             extraData={albums}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item, index) => item.id.toString()}
             ItemSeparatorComponent={separator}
             />
             <Modal
@@ -202,7 +244,7 @@ const HomeScreen = ({route, navigation}) =>
                                 setAddModalVisible(false);
                                 getAlbumManual(manualAdd.artist, manualAdd.title).then(album =>
                                 {
-                                    setScannedItem(album.results[0]);
+                                    setScannedItem(album);
                                 }).catch(error =>
                                 {
                                     console.error('Error fetching album: ', error)
@@ -256,7 +298,7 @@ const styles = StyleSheet.create(
     {
         flexDirection: 'row',
         marginTop: 5,
-        justifyContent: 'space-evenly',
+        justifyContent: 'flex-start',
     },
     modalView: 
     {
