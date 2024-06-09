@@ -7,7 +7,6 @@ import
     StyleSheet, 
     FlatList, 
     Image, 
-    Modal, 
     TouchableOpacity, 
     KeyboardAvoidingView, 
     TouchableWithoutFeedback,
@@ -30,6 +29,8 @@ import
     updateAlbum,
     deleteAlbum,
 } from '../helpers/fb-albums';
+import DropDownPicker from 'react-native-dropdown-picker';
+import Modal from 'react-native-modal';
 
 const HomeScreen = ({route, navigation}) =>
 {
@@ -37,10 +38,35 @@ const HomeScreen = ({route, navigation}) =>
     const [albums, setAlbums] = useState([]);
     const [scannedItem, setScannedItem] = useState(null);
     const [addModalVisible, setAddModalVisible] = useState(false);
+    const [sortModalVisible, setSortModalVisible] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const [manualAdd, setManualAdd] = useState(
     {
         title: '',
         artist: '',
+    });
+    const [genreOpen, setGenreOpen] = useState(false);
+    const [genreItems, setGenreItems] = useState([
+      {label: 'Rock', value: 'Rock'},
+      {label: 'Electronic', value: 'Electronic'},
+      {label: 'Pop', value: 'Pop'},
+      {label: 'Folk, World, & Country', value: 'Folk, World, & Country'},
+      {label: 'Jazz', value: 'Jazz'},
+      {label: 'Funk / Soul', value: 'Funk / Soul'},
+      {label: 'Classical', value: 'Classical'},
+      {label: 'Hip Hop', value: 'Hip Hop'},
+      {label: 'Latin', value: 'Latin'},
+      {label: 'Stage & Screen', value: 'Stage & Screen'},
+      {label: 'Reggae', value: 'Reggae'},
+      {label: 'Blues', value: 'Blues'},
+      {label: 'Non-Music', value: 'Non-Music'},
+      {label: 'Children\'s', value: 'Children\'s'},
+      {label: 'Brass & Military', value: 'Brass & Military'},
+    ]);
+    const [filteringInfo, setFilteringInfo] = useState(
+    {
+        artist: '',
+        genre: '',
     });
 
     const separator = () =>
@@ -67,6 +93,16 @@ const HomeScreen = ({route, navigation}) =>
     useEffect(() =>
     {
         navigation.setOptions({
+            headerLeft: () =>(
+                <TouchableOpacity
+                    onPress={() => 
+                    {
+                        setSortModalVisible(true)
+                    }}
+                > 
+                    <AntDesign name="bars" size={24} color="black" style={{marginLeft: 25,}}/>
+                </TouchableOpacity>
+            ),
             headerRight: () =>(
                 <TouchableOpacity
                     onPress={() => 
@@ -179,25 +215,56 @@ const HomeScreen = ({route, navigation}) =>
         )
     }
 
+    const filterAlbums = () =>
+    {
+        let filteredAlbums = albums;
+        // if(filteringInfo.genre)
+        // {
+        //     filteredAlbums = filteredAlbums.filter(album =>
+        //     {
+        //         album.genre && album.genre.includes(filteringInfo.genre);
+        //     });
+        // }
+        if(searchQuery)
+        {
+            filteredAlbums = filteredAlbums.filter((album) =>
+            {
+                return album.artist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    album.title.toLowerCase().includes(searchQuery.toLowerCase());
+            });
+        }
+        console.log(filteredAlbums)
+
+        return filteredAlbums;
+    };
+
     return(
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View>
+            <Input
+                placeholder='Search by title or artist'
+                value={searchQuery}
+                onChangeText={val => setSearchQuery(val)}
+                style={styles.searchBar}
+            />
             <FlatList
-            data={albums}
+            data={filterAlbums()}
             renderItem={renderAlbum}
             extraData={albums}
             keyExtractor={(item, index) => item.id.toString()}
             ItemSeparatorComponent={separator}
             />
             <Modal
-                animationType='slide'
-                transparent={true}
-                visible={addModalVisible}
-                onRequestClose={() =>
+                animationIn='slideInUp'
+                animationOut='slideOutDown'
+                isVisible={addModalVisible}
+                swipeDirection={'down'}
+                onSwipeComplete={() =>
                 {
                     setAddModalVisible(false);
                 }}
+                style={{ marginRight:0, marginLeft:0,}}
             >
-                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View style={styles.modalView}>
                     <View style={styles.addHeader}>  
                         <TouchableOpacity
@@ -254,9 +321,38 @@ const HomeScreen = ({route, navigation}) =>
                         >Save Album</Button>
                     </View>
                 </View>
-                </TouchableWithoutFeedback>
             </Modal> 
+            <Modal
+                animationIn='slideInLeft'
+                animationOut='slideOutLeft'
+                isVisible={sortModalVisible}
+                onBackdropPress={() => 
+                {
+                    setSortModalVisible(false)
+                    
+                }}
+                style={{margin: 0, marginTop: 90}}
+            >
+                <View style={styles.sortModalView}>
+                    <View style={{marginTop: 15, flex: 1,}}>
+                        <Text style={{textAlign: 'center', fontSize: 20}}> Sort Your Collection </Text>
+                    </View>
+                    <View style={{flex: 15, flexDirection:'column'}}>
+                        <DropDownPicker
+                            open={genreOpen}
+                            value={filteringInfo.genre}
+                            items={genreItems}
+                            setOpen={setGenreOpen}
+                            setValue={(val) => setFilteringInfo(prev => ({ ...prev, genre: val}))}
+                            setItems={setGenreItems}
+                            zIndex={3000}
+                            zIndexInverse={1000}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </View>
+        </TouchableWithoutFeedback>
     );
 };
 
@@ -310,6 +406,7 @@ const styles = StyleSheet.create(
         borderTopLeftRadius: 50,
         borderTopRightRadius: 50,
         flexDirection: 'column',
+        flex: 1,
     },
     dismiss:
     {
@@ -340,6 +437,24 @@ const styles = StyleSheet.create(
     {
         width: '100%',
         height: '100%',
+    },
+    sortModalView: 
+    {
+        backgroundColor: 'white',
+        borderWidth: 5,
+        borderLeftWidth: 0,
+        borderTopRightRadius: 50,
+        borderBottomRightRadius: 50,
+        flexDirection: 'column',
+        flex: 1,
+        marginRight: 150,
+    },
+    searchBar: {
+        margin: 10,
+        padding: 10,
+        borderRadius: 5,
+        borderColor: 'gray',
+        borderWidth: 1,
     },
 });
 
