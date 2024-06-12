@@ -13,6 +13,7 @@ import
     Keyboard,
     Platform,
     TouchableHighlight,
+    Alert,
 } from 'react-native';
 import { getAlbum, getAlbumManual } from '../api/DiscogsServer';
 import { Button, Input } from '@rneui/themed';
@@ -195,6 +196,24 @@ const HomeScreen = ({route, navigation}) =>
         });
     };
 
+    const createDeleteAlert = (item) =>
+    {
+        Alert.alert('', 'Are you sure you want to delete this album?', [
+        {
+            text: 'Delete',
+            onPress: () => {
+                console.log('Deleted'),
+                deleteAlbum(item);
+            }
+        },
+        {
+            text: 'Cancel',
+            onPress: () => console.log('Cancelled'),
+            style: 'cancel',
+        }
+        ]);
+    }
+
     const renderAlbum = ({item}) =>
     {
         return(
@@ -216,6 +235,7 @@ const HomeScreen = ({route, navigation}) =>
                             rating: item.rating,
                         });
                     }}
+                    onLongPress={() => createDeleteAlert(item)}
                 >
                     <View style={styles.albumCard}>
                         <View style={styles.imageContainer}>
