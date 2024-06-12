@@ -6,8 +6,11 @@ import { Fontisto } from '@expo/vector-icons';
 
 const CameraScreen = ({navigation}) =>
 {
+    /******************************* USE STATES ********************************/
     const [scanned, setScanned] = useState(false);
+    const [facing, setFacing] = useState('back');
 
+    /******************************* USE EFFECTS ********************************/
     useEffect(() => 
     {
         // This effect will run when the component mounts and unmounts
@@ -15,6 +18,10 @@ const CameraScreen = ({navigation}) =>
         return () => showBottomBar();
     }, []); // Empty dependency array ensures this effect runs only once
 
+    /******************************* OTHER HOOKS ********************************/
+    const [permission, requestPermission] = useCameraPermissions();
+
+    /******************************* HELPER FUNCTIONS ********************************/
     function hideBottomBar() 
     {
         navigation.getParent()?.setOptions({ tabBarStyle: { display: 'none' }, tabBarVisible: false });
@@ -24,9 +31,6 @@ const CameraScreen = ({navigation}) =>
     {
         navigation.getParent()?.setOptions({ tabBarStyle: undefined, tabBarVisible: undefined });
     }
-
-    const [facing, setFacing] = useState('back');
-    const [permission, requestPermission] = useCameraPermissions();
 
     if (!permission) 
     {
@@ -56,6 +60,7 @@ const CameraScreen = ({navigation}) =>
         setFacing(current => (current === 'back' ? 'front' : 'back'));
     }
 
+    /******************************* RETURN COMPONENT ********************************/
     return(
         <View style={styles.container}>
             <CameraView 
@@ -87,6 +92,7 @@ const CameraScreen = ({navigation}) =>
     );
 }
 
+/******************************* STYLE SHEET ********************************/
 const styles = StyleSheet.create({
     container: {
       flex: 1,

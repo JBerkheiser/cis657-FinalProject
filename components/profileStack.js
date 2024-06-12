@@ -5,6 +5,7 @@ import ProfileEditScreen from '../screens/ProfileEditScreen';
 const Stack = createStackNavigator();
 const ProfileStack = (navigation) =>
 {    
+    /******************************* RETURN COMPONENT ********************************/
     return(
         <Stack.Navigator initialRouteName="ProfileScreen">
             <Stack.Screen name="ProfileScreen" component={ProfileScreen}/>

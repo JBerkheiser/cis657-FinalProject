@@ -4,8 +4,10 @@ import CameraScreen from '../screens/CameraScreen';
 import AlbumInfoScreen from '../screens/AlbumInfoScreen';
 
 const Stack = createStackNavigator();
+
 const HomeStack = (navigation) =>
 {    
+    /******************************* RETURN COMPONENT ********************************/
     return(
         <Stack.Navigator initialRouteName="HomeScreen">
             <Stack.Screen name="HomeScreen" component={HomeScreen}/>

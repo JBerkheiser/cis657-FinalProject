@@ -9,6 +9,7 @@ const Tab = createBottomTabNavigator();
 
 const Footer = () => 
 {
+    /******************************* RETURN COMPONENT ********************************/
     return (
         <Tab.Navigator 
             initialRouteName={HomeStack}
@@ -57,6 +58,7 @@ const Footer = () =>
     );
 };
 
+/******************************* STYLE SHEET ********************************/
 const styles = StyleSheet.create(
 {
     HomeIcon:

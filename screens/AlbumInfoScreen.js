@@ -1,12 +1,10 @@
-import { color } from '@rneui/base';
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { updateAlbum } from '../helpers/fb-albums';
-
 
 const AlbumInfoScreen = ({navigation, route}) =>
 {
+    /******************************* USE STATES ********************************/
     const [albumInfo, setAlbumInfo] = useState([]);
     const [conditionOpen, setConditionOpen] = useState(false);
     const [conditionValue, setConditionValue] = useState(null);
@@ -34,6 +32,7 @@ const AlbumInfoScreen = ({navigation, route}) =>
       {label: '10 / 10', value: 10},
     ]);
 
+    /******************************* USE EFFECTS ********************************/
     useEffect(() => {
         navigation.setOptions({
             headerRight: () => (
@@ -57,6 +56,7 @@ const AlbumInfoScreen = ({navigation, route}) =>
         setRatingValue(route.params.rating);
     }, [route.params]);
 
+    /******************************* HELPER FUNCTIONS ********************************/
     const renderTracklist = ({item}) =>
     {
         return(
@@ -80,6 +80,7 @@ const AlbumInfoScreen = ({navigation, route}) =>
         setRatingOpen(false);
     }, []);
 
+    /******************************* RETURN COMPONENT ********************************/
     return(
         <View style={styles.container}>
             <View style={styles.leftSide}>
@@ -128,6 +129,7 @@ const AlbumInfoScreen = ({navigation, route}) =>
     );
 }
 
+/******************************* STYLE SHEET ********************************/
 const styles = StyleSheet.create(
 {
     container:

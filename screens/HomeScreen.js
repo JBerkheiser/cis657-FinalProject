@@ -1,5 +1,13 @@
-import { getAdapter } from 'axios';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect} from 'react';
+import { getAlbum } from '../api/DiscogsServer';
+import { Input } from '@rneui/themed';
+import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { Rating } from 'react-native-elements';
+import { useSort } from '../components/SortContext';
+import SortingModal from '../components/SortingModal';
+import AddingModal from '../components/AddingModal';
+import { useAlbum } from '../components/AlbumContext';
 import 
 { 
     View, 
@@ -7,21 +15,12 @@ import
     StyleSheet, 
     FlatList, 
     Image, 
-    TouchableOpacity, 
-    KeyboardAvoidingView, 
+    TouchableOpacity,  
     TouchableWithoutFeedback,
     Keyboard,
-    Platform,
     TouchableHighlight,
     Alert,
 } from 'react-native';
-import { getAlbum, getAlbumManual } from '../api/DiscogsServer';
-import { Button, Input } from '@rneui/themed';
-import { Entypo } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons';
-import { FontAwesome6 } from '@expo/vector-icons';
-import { Rating } from 'react-native-elements';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import 
 {
     initAlbumDB,
@@ -30,80 +29,32 @@ import
     updateAlbum,
     deleteAlbum,
 } from '../helpers/fb-albums';
-import DropDownPicker from 'react-native-dropdown-picker';
-import Modal from 'react-native-modal';
 
 const HomeScreen = ({route, navigation}) =>
 {
+    /******************************* USE CONTEXTS ********************************/
+    const 
+    {
+        yearSearch,
+        genreValue, 
+        ratingValue,
+        conditionValue,
+    } = useSort();
+    const
+    {
+        scannedItem,
+        setScannedItem,
+    } = useAlbum();
+
+    /******************************* USE STATES ********************************/
+
+    const [sortModalVisible, setSortModalVisible] = useState(false);
     const [albumToUpdate, setAlbumToUpdate] = useState(null);
     const [albums, setAlbums] = useState([]);
-    const [scannedItem, setScannedItem] = useState(null);
     const [addModalVisible, setAddModalVisible] = useState(false);
-    const [sortModalVisible, setSortModalVisible] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [manualAdd, setManualAdd] = useState(
-    {
-        title: '',
-        artist: '',
-    });
-    const [genreOpen, setGenreOpen] = useState(false);
-    const [genreItems, setGenreItems] = useState([
-        {label: 'Any genre', value: ''},
-        {label: 'Rock', value: 'Rock'},
-        {label: 'Electronic', value: 'Electronic'},
-        {label: 'Pop', value: 'Pop'},
-        {label: 'Folk, World, & Country', value: 'Folk, World, & Country'},
-        {label: 'Jazz', value: 'Jazz'},
-        {label: 'Funk / Soul', value: 'Funk / Soul'},
-        {label: 'Classical', value: 'Classical'},
-        {label: 'Hip Hop', value: 'Hip Hop'},
-        {label: 'Latin', value: 'Latin'},
-        {label: 'Stage & Screen', value: 'Stage & Screen'},
-        {label: 'Reggae', value: 'Reggae'},
-        {label: 'Blues', value: 'Blues'},
-        {label: 'Non-Music', value: 'Non-Music'},
-        {label: 'Children\'s', value: 'Children\'s'},
-        {label: 'Brass & Military', value: 'Brass & Military'},
-    ]);
-    const [genreValue, setGenreValue] = useState('');
 
-    const [yearSearch, setYearSearch] = useState('');
-    const [yearErrorMessage, setYearErrorMessage] = useState('');
-
-    const [ratingOpen, setRatingOpen] = useState(false);
-    const [ratingValue, setRatingValue] = useState('');
-    const [ratingItems, setRatingItems] = useState([
-        {label: 'Any rating', value: ''},
-        {label: '1 / 10', value: 1},
-        {label: '2 / 10', value: 2},
-        {label: '3 / 10', value: 3},
-        {label: '4 / 10', value: 4},
-        {label: '5 / 10', value: 5},
-        {label: '6 / 10', value: 6},
-        {label: '7 / 10', value: 7},
-        {label: '8 / 10', value: 8},
-        {label: '9 / 10', value: 9},
-        {label: '10 / 10', value: 10},
-    ]);
-
-    const [conditionOpen, setConditionOpen] = useState(false);
-    const [conditionValue, setConditionValue] = useState('');
-    const [conditionItems, setConditionItems] = useState([
-        {label: 'Any condition', value: ''},
-        {label: 'Mint', value: 'Mint'},
-        {label: 'Near Mint', value: 'Near Mint'},
-        {label: 'Excellent', value: 'Excellent'},
-        {label: 'Very Good', value: 'Very Good'},
-        {label: 'Good', value: 'Good'},
-        {label: 'Fair', value: 'Fair'},
-        {label: 'Poor', value: 'Poor'},
-    ]);
-
-    const separator = () =>
-    {
-        return(<View style={styles.separator}/>);
-    };
-
+    /******************************* USE EFFECTS ********************************/
     useEffect(() =>
     {
         try
@@ -177,7 +128,6 @@ const HomeScreen = ({route, navigation}) =>
         }
     }, [route.params?.condition, route.params?.rating]);
 
-
     useEffect(() =>
     {
         if(scannedItem)
@@ -188,12 +138,11 @@ const HomeScreen = ({route, navigation}) =>
         }
     }, [scannedItem]);
 
+    /******************************* HELPER FUNCTIONS ********************************/
     
-    const updateManualAddObject = (vals) => {
-        setManualAdd({
-        ...manualAdd,
-        ...vals,
-        });
+    const separator = () =>
+    {
+        return(<View style={styles.separator}/>);
     };
 
     const createDeleteAlert = (item) =>
@@ -265,37 +214,6 @@ const HomeScreen = ({route, navigation}) =>
         )
     }
 
-    function validateYear(val)
-    {
-        const numericValue = parseInt(val);
-        if(isNaN(numericValue))
-        {
-            setYearErrorMessage('Must be a valid year');
-            return false;
-        }
-
-        setYearErrorMessage('');
-        return true;
-    }
-
-    const onRatingOpen = useCallback(() =>
-    {
-        setConditionOpen(false);
-        setGenreOpen(false);
-    }, []);
-
-    const onConditionOpen = useCallback(() =>
-    {
-        setRatingOpen(false);
-        setGenreOpen(false);
-    }, []);
-
-    const onGenreOpen = useCallback(() =>
-    {
-        setRatingOpen(false);
-        setConditionOpen(false);
-    }, []);
-
     const filterAlbums = () =>
     {
         let filteredAlbums = albums;
@@ -339,6 +257,8 @@ const HomeScreen = ({route, navigation}) =>
         return filteredAlbums;
     };
 
+    /******************************* RETURN COMPONENT ********************************/
+
     return(
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{flex: 1}}>
@@ -349,162 +269,27 @@ const HomeScreen = ({route, navigation}) =>
                 style={styles.searchBar}
             />
             <FlatList
-            data={filterAlbums()}
-            renderItem={renderAlbum}
-            extraData={albums}
-            keyExtractor={(item, index) => item.id.toString()}
-            ItemSeparatorComponent={separator}
+                data={filterAlbums()}
+                renderItem={renderAlbum}
+                extraData={albums}
+                keyExtractor={(item, index) => item.id.toString()}
+                ItemSeparatorComponent={separator}
             />
-            <Modal
-                animationIn='slideInUp'
-                animationOut='slideOutDown'
+            <AddingModal
                 isVisible={addModalVisible}
-                swipeDirection={'down'}
-                onSwipeComplete={() =>
-                {
-                    setAddModalVisible(false);
-                }}
-                style={{ marginRight:0, marginLeft:0,}}
-            >
-                <View style={styles.modalView}>
-                    <View style={styles.addHeader}>  
-                        <TouchableOpacity
-                            onPress={() =>
-                            {
-                                setAddModalVisible(false);
-                            }}
-                        >
-                            <AntDesign name="leftcircle" size={24} color="black" />
-                        </TouchableOpacity>
-                        <Text style={{fontSize: 20}}>Add Album</Text>
-                        <TouchableOpacity onPress={() => 
-                        {
-                            setAddModalVisible(false);
-                            navigation.navigate('CameraScreen');
-                        }}
-                        >
-                            <Entypo name="camera" size={24} color="black" />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.addMiddle}>
-                    <KeyboardAwareScrollView>
-                    <View>
-                        <Input
-                            placeholder='Enter the albums title'
-                            value={manualAdd.title}
-                            autoCorrect={false}
-                            onChangeText={(val) => updateManualAddObject({ title: val })}
-                        />
-                        <Input
-                            placeholder='Enter the artist'
-                            value={manualAdd.artist}
-                            autoCorrect={false}
-                            onChangeText={(val) => updateManualAddObject({ artist: val })}
-                        />
-                    </View>
-                    </KeyboardAwareScrollView>
-                    </View>
-                    <View style={styles.addBottom}>
-                        <Button 
-                            style={{margin: 4}}
-                            onPress={() =>
-                            {
-                                setAddModalVisible(false);
-                                getAlbumManual(manualAdd.artist, manualAdd.title).then(album =>
-                                {
-                                    setScannedItem(album);
-                                }).catch(error =>
-                                {
-                                    console.error('Error fetching album: ', error)
-                                });
-                                updateManualAddObject({artist: '', title: ''});
-                            }}
-                        >Save Album</Button>
-                    </View>
-                </View>
-            </Modal> 
-            <Modal
-                animationIn='slideInLeft'
-                animationOut='slideOutLeft'
+                onClose={() => setAddModalVisible(false)}
+                navigateCamera={navigation.navigate}
+            />
+            <SortingModal
                 isVisible={sortModalVisible}
-                onBackdropPress={() => 
-                {
-                    setSortModalVisible(false)
-                    
-                }}
-                style={{margin: 0, marginTop: 90}}
-            >
-                <View style={styles.sortModalView}>
-                    <View style={{marginTop: 15, flex: 1,}}>
-                        <Text style={{textAlign: 'center', fontSize: 20}}> Sort By </Text>
-                    </View>
-                    <View style={{flex: 15, flexDirection:'column'}}>
-                        <View style={{marginTop: 25}}>
-                            <Text>Release Year:</Text>
-                            <Input
-                                placeholder='Enter Release Year'
-                                onChangeText={num =>
-                                {
-                                    setYearSearch(num);
-                                    validateYear(num);
-                                }}
-                                value={yearSearch}
-                                errorMessage={yearErrorMessage}
-                            />
-                        </View>
-                        <View>
-                            <Text>Genre:</Text>
-                            <DropDownPicker
-                                open={genreOpen}
-                                value={genreValue}
-                                items={genreItems}
-                                onOpen={onGenreOpen}
-                                setOpen={setGenreOpen}
-                                setValue={setGenreValue}
-                                setItems={setGenreItems}
-                                zIndex={1000}
-                                zIndexInverse={3000}
-                            />
-                        </View>
-                        {!genreOpen &&
-                        <View style={{marginTop: 25}}>
-                            <Text>Rating:</Text>
-                            <DropDownPicker
-                                open={ratingOpen}
-                                value={ratingValue}
-                                items={ratingItems}
-                                onOpen={onRatingOpen}
-                                setOpen={setRatingOpen}
-                                setValue={setRatingValue}
-                                setItems={setRatingItems}
-                                zIndex={3000}
-                                zIndexInverse={1000}
-                            />
-                        </View>
-                        }
-                        {!ratingOpen && !genreOpen &&
-                        <View style={{marginTop: 25}}>
-                            <Text>Condition:</Text>
-                            <DropDownPicker
-                                open={conditionOpen}
-                                value={conditionValue}
-                                items={conditionItems}
-                                onOpen={onConditionOpen}
-                                setOpen={setConditionOpen}
-                                setValue={setConditionValue}
-                                setItems={setConditionItems}
-                                zIndex={3000}
-                                zIndexInverse={1000}
-                            />
-                        </View>
-                        }
-                    </View>
-                </View>
-            </Modal>
+                onClose={() => setSortModalVisible(false)}
+            />
         </View>
         </TouchableWithoutFeedback>
     );
 };
+
+/******************************* STYLE SHEET ********************************/
 
 const styles = StyleSheet.create(
 {
@@ -546,37 +331,10 @@ const styles = StyleSheet.create(
         marginTop: 5,
         justifyContent: 'flex-start',
     },
-    modalView: 
-    {
-        top: '30%',
-        height: '70%',
-        backgroundColor: 'white',
-        borderWidth: 4,
-        borderBottomWidth: 0,
-        borderTopLeftRadius: 50,
-        borderTopRightRadius: 50,
-        flexDirection: 'column',
-        flex: 1,
-    },
     dismiss:
     {
         top: '100%',
         height: '100%',
-    },
-    addHeader:
-    {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        marginTop: 7,
-    },
-    addMiddle:
-    {
-        flex: 5,
-    },
-    addBottom:
-    {
-        flex:  4,
     },
     cameraContainer:
     {
@@ -587,17 +345,6 @@ const styles = StyleSheet.create(
     {
         width: '100%',
         height: '100%',
-    },
-    sortModalView: 
-    {
-        backgroundColor: 'white',
-        borderWidth: 5,
-        borderLeftWidth: 0,
-        borderTopRightRadius: 50,
-        borderBottomRightRadius: 50,
-        flexDirection: 'column',
-        flex: 1,
-        marginRight: 150,
     },
     searchBar: {
         margin: 10,

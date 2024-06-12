@@ -1,17 +1,24 @@
-import { StyleSheet, SafeAreaView, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { Header, Divider } from '@rneui/themed';
+import { StyleSheet } from 'react-native';
 import Footer from './components/footer';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native'; 
+import { NavigationContainer } from '@react-navigation/native'; 
+import { SortProvider } from './components/SortContext';
+import { AlbumProvider } from './components/AlbumContext';
 
 export default function App() 
 {
+  /******************************* RETURN COMPONENT ********************************/
   return (
+    <AlbumProvider>
+    <SortProvider>
     <NavigationContainer>
-      <Footer></Footer>
+      <Footer/>
     </NavigationContainer>
+    </SortProvider>
+    </AlbumProvider>
   );
 }
 
+/******************************* STYLE SHEET ********************************/
 const styles = StyleSheet.create(
 {
   container: 
