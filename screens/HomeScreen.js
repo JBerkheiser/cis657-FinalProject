@@ -1,5 +1,5 @@
 import { getAdapter } from 'axios';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import 
 { 
     View, 
@@ -47,27 +47,56 @@ const HomeScreen = ({route, navigation}) =>
     });
     const [genreOpen, setGenreOpen] = useState(false);
     const [genreItems, setGenreItems] = useState([
-      {label: 'Rock', value: 'Rock'},
-      {label: 'Electronic', value: 'Electronic'},
-      {label: 'Pop', value: 'Pop'},
-      {label: 'Folk, World, & Country', value: 'Folk, World, & Country'},
-      {label: 'Jazz', value: 'Jazz'},
-      {label: 'Funk / Soul', value: 'Funk / Soul'},
-      {label: 'Classical', value: 'Classical'},
-      {label: 'Hip Hop', value: 'Hip Hop'},
-      {label: 'Latin', value: 'Latin'},
-      {label: 'Stage & Screen', value: 'Stage & Screen'},
-      {label: 'Reggae', value: 'Reggae'},
-      {label: 'Blues', value: 'Blues'},
-      {label: 'Non-Music', value: 'Non-Music'},
-      {label: 'Children\'s', value: 'Children\'s'},
-      {label: 'Brass & Military', value: 'Brass & Military'},
+        {label: 'Any genre', value: ''},
+        {label: 'Rock', value: 'Rock'},
+        {label: 'Electronic', value: 'Electronic'},
+        {label: 'Pop', value: 'Pop'},
+        {label: 'Folk, World, & Country', value: 'Folk, World, & Country'},
+        {label: 'Jazz', value: 'Jazz'},
+        {label: 'Funk / Soul', value: 'Funk / Soul'},
+        {label: 'Classical', value: 'Classical'},
+        {label: 'Hip Hop', value: 'Hip Hop'},
+        {label: 'Latin', value: 'Latin'},
+        {label: 'Stage & Screen', value: 'Stage & Screen'},
+        {label: 'Reggae', value: 'Reggae'},
+        {label: 'Blues', value: 'Blues'},
+        {label: 'Non-Music', value: 'Non-Music'},
+        {label: 'Children\'s', value: 'Children\'s'},
+        {label: 'Brass & Military', value: 'Brass & Military'},
     ]);
-    const [filteringInfo, setFilteringInfo] = useState(
-    {
-        artist: '',
-        genre: '',
-    });
+    const [genreValue, setGenreValue] = useState('');
+
+    const [yearSearch, setYearSearch] = useState('');
+    const [yearErrorMessage, setYearErrorMessage] = useState('');
+
+    const [ratingOpen, setRatingOpen] = useState(false);
+    const [ratingValue, setRatingValue] = useState('');
+    const [ratingItems, setRatingItems] = useState([
+        {label: 'Any rating', value: ''},
+        {label: '1 / 10', value: 1},
+        {label: '2 / 10', value: 2},
+        {label: '3 / 10', value: 3},
+        {label: '4 / 10', value: 4},
+        {label: '5 / 10', value: 5},
+        {label: '6 / 10', value: 6},
+        {label: '7 / 10', value: 7},
+        {label: '8 / 10', value: 8},
+        {label: '9 / 10', value: 9},
+        {label: '10 / 10', value: 10},
+    ]);
+
+    const [conditionOpen, setConditionOpen] = useState(false);
+    const [conditionValue, setConditionValue] = useState('');
+    const [conditionItems, setConditionItems] = useState([
+        {label: 'Any condition', value: ''},
+        {label: 'Mint', value: 'Mint'},
+        {label: 'Near Mint', value: 'Near Mint'},
+        {label: 'Excellent', value: 'Excellent'},
+        {label: 'Very Good', value: 'Very Good'},
+        {label: 'Good', value: 'Good'},
+        {label: 'Fair', value: 'Fair'},
+        {label: 'Poor', value: 'Poor'},
+    ]);
 
     const separator = () =>
     {
@@ -85,7 +114,6 @@ const HomeScreen = ({route, navigation}) =>
         }
         setupAlbumListener((items) =>
         {
-            console.log('setting state with: ', items);
             setAlbums(items);
         });
     }, []);
@@ -97,6 +125,7 @@ const HomeScreen = ({route, navigation}) =>
                 <TouchableOpacity
                     onPress={() => 
                     {
+                        Keyboard.dismiss();
                         setSortModalVisible(true)
                     }}
                 > 
@@ -107,6 +136,7 @@ const HomeScreen = ({route, navigation}) =>
                 <TouchableOpacity
                     onPress={() => 
                     {
+                        Keyboard.dismiss();
                         setAddModalVisible(true)
                     }}
                 > 
@@ -215,16 +245,40 @@ const HomeScreen = ({route, navigation}) =>
         )
     }
 
+    function validateYear(val)
+    {
+        const numericValue = parseInt(val);
+        if(isNaN(numericValue))
+        {
+            setYearErrorMessage('Must be a valid year');
+            return false;
+        }
+
+        setYearErrorMessage('');
+        return true;
+    }
+
+    const onRatingOpen = useCallback(() =>
+    {
+        setConditionOpen(false);
+        setGenreOpen(false);
+    }, []);
+
+    const onConditionOpen = useCallback(() =>
+    {
+        setRatingOpen(false);
+        setGenreOpen(false);
+    }, []);
+
+    const onGenreOpen = useCallback(() =>
+    {
+        setRatingOpen(false);
+        setConditionOpen(false);
+    }, []);
+
     const filterAlbums = () =>
     {
         let filteredAlbums = albums;
-        // if(filteringInfo.genre)
-        // {
-        //     filteredAlbums = filteredAlbums.filter(album =>
-        //     {
-        //         album.genre && album.genre.includes(filteringInfo.genre);
-        //     });
-        // }
         if(searchQuery)
         {
             filteredAlbums = filteredAlbums.filter((album) =>
@@ -233,14 +287,41 @@ const HomeScreen = ({route, navigation}) =>
                     album.title.toLowerCase().includes(searchQuery.toLowerCase());
             });
         }
-        console.log(filteredAlbums)
+        if(genreValue)
+        {
+            filteredAlbums = filteredAlbums.filter(album =>
+            {
+                return album.genre && album.genre.includes(genreValue);
+            });
+        }
+        if(yearSearch)
+        {
+            filteredAlbums = filteredAlbums.filter(album =>
+            {
+                return album.year && (parseInt(album.year) == parseInt(yearSearch));
+            });
+        }
+        if(ratingValue)
+        {
+            filteredAlbums = filteredAlbums.filter(album =>
+            {
+                return album.rating && (album.rating == ratingValue);
+            });
+        }
+        if(conditionValue)
+        {
+            filteredAlbums = filteredAlbums.filter(album =>
+            {
+                return album.condition && (album.condition === conditionValue);
+            });
+        }
 
         return filteredAlbums;
     };
 
     return(
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View>
+        <View style={{flex: 1}}>
             <Input
                 placeholder='Search by title or artist'
                 value={searchQuery}
@@ -335,19 +416,68 @@ const HomeScreen = ({route, navigation}) =>
             >
                 <View style={styles.sortModalView}>
                     <View style={{marginTop: 15, flex: 1,}}>
-                        <Text style={{textAlign: 'center', fontSize: 20}}> Sort Your Collection </Text>
+                        <Text style={{textAlign: 'center', fontSize: 20}}> Sort By </Text>
                     </View>
                     <View style={{flex: 15, flexDirection:'column'}}>
-                        <DropDownPicker
-                            open={genreOpen}
-                            value={filteringInfo.genre}
-                            items={genreItems}
-                            setOpen={setGenreOpen}
-                            setValue={(val) => setFilteringInfo(prev => ({ ...prev, genre: val}))}
-                            setItems={setGenreItems}
-                            zIndex={3000}
-                            zIndexInverse={1000}
-                        />
+                        <View style={{marginTop: 25}}>
+                            <Text>Release Year:</Text>
+                            <Input
+                                placeholder='Enter Release Year'
+                                onChangeText={num =>
+                                {
+                                    setYearSearch(num);
+                                    validateYear(num);
+                                }}
+                                value={yearSearch}
+                                errorMessage={yearErrorMessage}
+                            />
+                        </View>
+                        <View>
+                            <Text>Genre:</Text>
+                            <DropDownPicker
+                                open={genreOpen}
+                                value={genreValue}
+                                items={genreItems}
+                                onOpen={onGenreOpen}
+                                setOpen={setGenreOpen}
+                                setValue={setGenreValue}
+                                setItems={setGenreItems}
+                                zIndex={1000}
+                                zIndexInverse={3000}
+                            />
+                        </View>
+                        {!genreOpen &&
+                        <View style={{marginTop: 25}}>
+                            <Text>Rating:</Text>
+                            <DropDownPicker
+                                open={ratingOpen}
+                                value={ratingValue}
+                                items={ratingItems}
+                                onOpen={onRatingOpen}
+                                setOpen={setRatingOpen}
+                                setValue={setRatingValue}
+                                setItems={setRatingItems}
+                                zIndex={3000}
+                                zIndexInverse={1000}
+                            />
+                        </View>
+                        }
+                        {!ratingOpen && !genreOpen &&
+                        <View style={{marginTop: 25}}>
+                            <Text>Condition:</Text>
+                            <DropDownPicker
+                                open={conditionOpen}
+                                value={conditionValue}
+                                items={conditionItems}
+                                onOpen={onConditionOpen}
+                                setOpen={setConditionOpen}
+                                setValue={setConditionValue}
+                                setItems={setConditionItems}
+                                zIndex={3000}
+                                zIndexInverse={1000}
+                            />
+                        </View>
+                        }
                     </View>
                 </View>
             </Modal>
@@ -426,7 +556,7 @@ const styles = StyleSheet.create(
     },
     addBottom:
     {
-        flex: 1,
+        flex:  4,
     },
     cameraContainer:
     {
