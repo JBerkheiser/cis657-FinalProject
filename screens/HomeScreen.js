@@ -47,7 +47,6 @@ const HomeScreen = ({route, navigation}) =>
     } = useAlbum();
 
     /******************************* USE STATES ********************************/
-
     const [sortModalVisible, setSortModalVisible] = useState(false);
     const [albumToUpdate, setAlbumToUpdate] = useState(null);
     const [albums, setAlbums] = useState([]);
@@ -139,7 +138,6 @@ const HomeScreen = ({route, navigation}) =>
     }, [scannedItem]);
 
     /******************************* HELPER FUNCTIONS ********************************/
-    
     const separator = () =>
     {
         return(<View style={styles.separator}/>);
@@ -258,7 +256,6 @@ const HomeScreen = ({route, navigation}) =>
     };
 
     /******************************* RETURN COMPONENT ********************************/
-
     return(
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={{flex: 1}}>
@@ -290,7 +287,6 @@ const HomeScreen = ({route, navigation}) =>
 };
 
 /******************************* STYLE SHEET ********************************/
-
 const styles = StyleSheet.create(
 {
     container:
