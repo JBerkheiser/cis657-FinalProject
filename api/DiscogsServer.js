@@ -24,6 +24,7 @@ export const getAlbum = async(callback) =>
         `https://api.discogs.com/database/search?token=${DISCOGS_KEY}&barcode=${callback}&per_page=1&page=1`
     );
 
+    console.log("RESPONSE:" + response);
     const masterID = response.data.results[0].master_id;
 
     if(!masterID)

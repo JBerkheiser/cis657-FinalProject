@@ -8,7 +8,7 @@ const ProfileStack = (navigation) =>
     /******************************* RETURN COMPONENT ********************************/
     return(
         <Stack.Navigator initialRouteName="ProfileScreen">
-            <Stack.Screen name="ProfileScreen" component={ProfileScreen}/>
+            <Stack.Screen name="ProfileScreen" component={ProfileScreen} />
             <Stack.Screen name="ProfileEditScreen" component={ProfileEditScreen}/>
         </Stack.Navigator>
     )

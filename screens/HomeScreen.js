@@ -8,6 +8,7 @@ import { useSort } from '../components/SortContext';
 import SortingModal from '../components/SortingModal';
 import AddingModal from '../components/AddingModal';
 import { useAlbum } from '../components/AlbumContext';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import 
 { 
     View, 
@@ -47,6 +48,7 @@ const HomeScreen = ({route, navigation}) =>
     } = useAlbum();
 
     /******************************* USE STATES ********************************/
+    const [currentUserID, setCurrentUserID] = useState('');
     const [sortModalVisible, setSortModalVisible] = useState(false);
     const [albumToUpdate, setAlbumToUpdate] = useState(null);
     const [albums, setAlbums] = useState([]);
@@ -56,18 +58,28 @@ const HomeScreen = ({route, navigation}) =>
     /******************************* USE EFFECTS ********************************/
     useEffect(() =>
     {
-        try
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) =>
         {
-        initAlbumDB();
-        } catch(err)
-        {
-        console.log(err);
-        }
-        setupAlbumListener((items) =>
-        {
-            setAlbums(items);
-        });
+            if(user)
+            {
+                console.log("USER" + user.uid);
+                setCurrentUserID(user.uid);
+            }
+            else
+            {
+                console.log('User not signed in');
+            }
+        })
     }, []);
+
+    useEffect(() =>
+    {
+        if(currentUserID)
+        {
+            setupAlbumListener(currentUserID, setAlbums);
+        }
+    }, [currentUserID])
 
     useEffect(() =>
     {
@@ -121,7 +133,7 @@ const HomeScreen = ({route, navigation}) =>
                 rating: route.params.rating,
             };
 
-            updateAlbum(updatedAlbum); // Update the album in the database
+            updateAlbum(currentUserID, updatedAlbum); // Update the album in the database
 
             setAlbumToUpdate(null);
         }
@@ -132,7 +144,7 @@ const HomeScreen = ({route, navigation}) =>
         if(scannedItem)
         {
             setAlbums(prevAlbums => [...prevAlbums, scannedItem]);
-            storeAlbumItem(scannedItem);
+            storeAlbumItem(currentUserID, scannedItem);
             setScannedItem(null);
         }
     }, [scannedItem]);
@@ -150,7 +162,7 @@ const HomeScreen = ({route, navigation}) =>
             text: 'Delete',
             onPress: () => {
                 console.log('Deleted'),
-                deleteAlbum(item);
+                deleteAlbum(currentUserID, item);
             }
         },
         {

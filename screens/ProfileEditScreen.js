@@ -2,13 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Input } from '@rneui/themed'
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { setUpProfileListener, updateProfileInfo } from '../helpers/fb-albums';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 function ProfileEditScreen({route, navigation})
 {
+    const [profileInfo, setProfileInfo] = useState(
+    {
+        name: '',
+        bio: '',
+    });
     const [name, setName] = useState('');
     const [imageURL, setImageURL] = useState('');
     const [bio, setBio] = useState('');
     const [birthday, setBirthday] = useState('birthday');
+    const [currentUserID, setCurrentUserID] = useState('');
 
 
     function hideBottomBar() {    
@@ -18,6 +26,22 @@ function ProfileEditScreen({route, navigation})
                 navigation.getParent()?.setOptions({ tabBarStyle: undefined, tabBarVisible: undefined });
         }, [navigation]);
     }
+
+    useEffect(() =>
+    {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) =>
+        {
+            if(user)
+            {
+                setCurrentUserID(user.uid);
+            }
+            else
+            {
+                console.log('User not signed in');
+            }
+        })
+    }, []);
 
     useEffect(() =>
     {
@@ -35,11 +59,8 @@ function ProfileEditScreen({route, navigation})
                     onPress={() => 
                     {
                         initialName = name;
-                        navigation.navigate('ProfileScreen', {
-                            name,
-                            imageURL,
-                            bio,
-                        });
+                        updateProfileInfo(currentUserID, profileInfo);
+                        navigation.navigate('ProfileScreen');
                     }}
                 >
                     <Text> Save </Text>
@@ -50,19 +71,11 @@ function ProfileEditScreen({route, navigation})
 
     useEffect(() =>
     {
-        if(route.params?.name)
+        if(currentUserID)
         {
-            setName(route.params.name);
+            setUpProfileListener(currentUserID, setProfileInfo);
         }
-        if(route.params?.bio)
-        {
-            setBio(route.params.bio);
-        }
-        if(route.params?.imageURL)
-        {
-            setImageURL(route.params.imageURL);
-        }
-    }, [route.params?.name, route.params?.bio, route.params?.imageURL]);
+    }, [currentUserID]);
 
     hideBottomBar();
 
@@ -71,13 +84,13 @@ function ProfileEditScreen({route, navigation})
         <View style={styles.container}>
             <Input 
                 placeholder='Enter name'
-                value={name}
-                onChangeText={setName}
+                value={profileInfo.name}
+                onChangeText={val => setProfileInfo({...profileInfo, name: val})}
             /> 
             <Input 
                 placeholder='Enter bio'
-                value={bio}
-                onChangeText={setBio}
+                value={profileInfo.bio}
+                onChangeText={val => setProfileInfo({...profileInfo, bio: val})}
             /> 
             <Input 
                 placeholder='Enter Birthday'

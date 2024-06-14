@@ -3,25 +3,55 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { Card } from '@rneui/themed';
 import { Feather } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { setUpProfileListener } from '../helpers/fb-albums';
 
 const ProfileScreen = ({route, navigation}) =>
 {
+    const [profileInfo, setProfileInfo] = useState(
+    {
+        name: 'User',
+        bio: 'bio',
+    });
     const [name, setName] = useState('User');
     const [imageURL, setImageURL] = useState('../assets/Profile.png');
     const [bio, setBio] = useState('bio');
-    const [birthday, setBirthday] = useState('birthday');
+    const [currentUserID, setCurrentUserID] = useState('');
+
+    useEffect(() =>
+    {
+        const auth = getAuth();
+        onAuthStateChanged(auth, (user) =>
+        {
+            if(user)
+            {
+                setCurrentUserID(user.uid);
+            }
+            else
+            {
+                console.log('User not signed in');
+            }
+        })
+    }, []);
+
+    useEffect(() =>
+    {
+        if(currentUserID)
+        {
+            setUpProfileListener(currentUserID, setProfileInfo);
+        }
+    }, [currentUserID]);
 
     useEffect(() => 
     {
         navigation.setOptions({
+            headerLeft: () => (
+                <View/>
+            ),
             headerRight: () => (
                 <TouchableOpacity
                     onPress={() => 
-                        navigation.navigate('ProfileEditScreen', {
-                            name, 
-                            imageURL, 
-                            bio
-                        })
+                        navigation.navigate('ProfileEditScreen')
                     }
                 >
                     <Feather 
@@ -34,30 +64,28 @@ const ProfileScreen = ({route, navigation}) =>
         });
     });
 
-
-    useEffect(() =>
-    {
-        if(route.params?.name)
-        {
-            setName(route.params.name);
-        }
-        if(route.params?.imageURL)
-        {
-            setImageURL(route.params.imageURL);
-        }
-        if(route.params?.bio)
-        {
-            setBio(route.params.bio);
-        }
-    }, [route.params?.name, route.params?.imageURL, route.params?.bio]);
-
     return(
         <View style={styles.container}>
-            <Card>
-                <Card.Title>{name}</Card.Title>
-                <Card.Image source={{url: imageURL}}/>
-                <Text style={styles.profileText}>{bio}</Text>
-            </Card>
+            <View style={styles.profileTop}>
+                <View style={styles.picAndName}>
+                    <Image
+                        source={imageURL}
+                        style={{
+                            height: 155,
+                            width: 155,
+                            borderRadius: 90,
+                            borderWidth: 2,
+                            margin: 5,
+                        }}
+                    />
+                    <View style={styles.infoSection}>
+                        <Text style={{fontSize: 25, fontWeight: 'bold'}}>{profileInfo.name}</Text>
+                    </View>
+                </View>
+                <View style={styles.bioContainer}>
+                    <Text style={{fontSize: 20, marginTop: 10,}}>{profileInfo.bio}</Text>
+                </View>
+            </View>
         </View>
     )
 }
@@ -69,18 +97,26 @@ const styles = StyleSheet.create(
         flex: 1,
         justifyContent: 'Top',
     },
-    profileIcon:
+    profileTop:
     {
-        width: 100,
-        height: 100,
-        marginTop: 20,
-        marginBottom: 20,
+        borderBottomWidth: 2, 
+        borderBottomColor: 'grey'
     },
-    profileText:
+    picAndName:
     {
-        marginTop: 10,
-        alignItems: 'right',
-    },  
+        flexDirection: 'row'
+    },
+    infoSection:
+    {
+        flex: 2, 
+        flexDirection: 'column',
+        marginLeft: 15,
+    },
+    bioContainer:
+    {
+        marginTop: 10, 
+        marginLeft: 10,
+    }
 })
 
 export default ProfileScreen;
