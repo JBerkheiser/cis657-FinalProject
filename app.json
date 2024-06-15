@@ -6,8 +6,18 @@
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
       ]
     ],
+
+      
     "name": "cis657-FinalProject",
     "slug": "cis657-FinalProject",
     "version": "1.0.0",
@@ -20,16 +30,34 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "edu.gvsu.vinyl",
+      "buildNumber": "1.0.0",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
+      "package": "edu.gvsu.vinyl",
+      "versionCode": 1,
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "config": {
+        "firebase": {
+          "apiKey": "AIzaSyC99AzNWPUpRME2JQpeei2oVPM6jpFWwKE",
+          "authDomain": "vinylcollection-eae67.firebaseapp.com",
+          "databaseURL": "https://vinylcollection-eae67-default-rtdb.firebaseio.com",
+          "projectId": "vinylcollection-eae67",
+          "storageBucket": "vinylcollection-eae67.appspot.com",
+          "messagingSenderId": "987806196696",
+          "appId": "1:987806196696:web:e8cc9983227ed31a81c8ad",
+          "measurementId": "G-60Q36N5YCP"
+        }
+      }
     }
   }
 }

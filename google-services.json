@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "987806196696",
+    "firebase_url": "https://vinylcollection-eae67-default-rtdb.firebaseio.com",
+    "project_id": "vinylcollection-eae67",
+    "storage_bucket": "vinylcollection-eae67.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987806196696:android:a8907736679849c081c8ad",
+        "android_client_info": {
+          "package_name": "edu.gvsu.vinyl"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaH6GRHfuYQr9QdKeYwY1KAxgRjGd5-n8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
