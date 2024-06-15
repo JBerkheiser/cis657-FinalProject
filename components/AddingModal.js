@@ -91,12 +91,8 @@ const AddingModal = ({ isVisible, onClose, navigateCamera }) => {
                                 value={manualAdd.title}
                                 autoCorrect={false}
                                 onChangeText={(val) => {
-                                    if (val.trim() !== '') {
-                                        setErrorMessages(prevState => ({ ...prevState, title: '' }));
-                                        updateManualAddObject({ title: val });
-                                    } else {
-                                        setErrorMessages(prevState => ({ ...prevState, title: 'Please enter a title' }));
-                                    }
+                                    setErrorMessages(prevState => ({ ...prevState, title: '' }));
+                                    updateManualAddObject({ title: val });
                                 }}
                                 errorMessage={errorMessages.title}
                             />
@@ -105,12 +101,8 @@ const AddingModal = ({ isVisible, onClose, navigateCamera }) => {
                                 value={manualAdd.artist}
                                 autoCorrect={false}
                                 onChangeText={(val) => {
-                                    if (val.trim() !== '') {
-                                        setErrorMessages(prevState => ({ ...prevState, artist: '' }));
-                                        updateManualAddObject({ artist: val });
-                                    } else {
-                                        setErrorMessages(prevState => ({ ...prevState, artist: 'Please enter an artist' }));
-                                    }
+                                    setErrorMessages(prevState => ({ ...prevState, artist: '' }));
+                                    updateManualAddObject({ artist: val });
                                 }}
                                 errorMessage={errorMessages.artist}
                             />
