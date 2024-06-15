@@ -63,7 +63,6 @@ const HomeScreen = ({route, navigation}) =>
         {
             if(user)
             {
-                console.log("USER" + user.uid);
                 setCurrentUserID(user.uid);
             }
             else
